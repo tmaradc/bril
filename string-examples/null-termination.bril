@@ -1,0 +1,205 @@
+@string_example() : ptr<char> {
+    c0: char = const 'a';
+    c1: char = const ' ';
+    c2: char = const 's';
+    c3: char = const 't';
+    c4: char = const 'r';
+    c5: char = const 'i';
+    c6: char = const 'n';
+    c7: char = const 'g';
+    terminator : char = const '\0'; 
+
+    tam: int = const 9;
+
+    offset: int = const 1;
+    string: ptr<char> = alloc tam;
+
+    strpos1: ptr<char> = ptradd string offset;
+    strpos2: ptr<char> = ptradd strpos1 offset;
+    strpos3: ptr<char> = ptradd strpos2 offset;
+    strpos4: ptr<char> = ptradd strpos3 offset;
+    strpos5: ptr<char> = ptradd strpos4 offset;
+    strpos6: ptr<char> = ptradd strpos5 offset;
+    strpos7: ptr<char> = ptradd strpos6 offset;
+    strpos8: ptr<char> = ptradd strpos7 offset;
+
+    store string c0;
+    store strpos1 c1;
+    store strpos2 c2;
+    store strpos3 c3;
+    store strpos4 c4;
+    store strpos5 c5;
+    store strpos6 c6;
+    store strpos7 c7;
+    store strpos8 terminator;
+
+    ret string;
+}
+
+@hello() : ptr<char> {
+    c0: char = const 'h';
+    c1: char = const 'e';
+    c2: char = const 'l';
+    c3: char = const 'l';
+    c4: char = const 'o';
+    c5: char = const ' ';
+    terminator : char = const '\0'; 
+
+    tam: int = const 7;
+
+    offset: int = const 1;
+    string: ptr<char> = alloc tam;
+
+    strpos1: ptr<char> = ptradd string offset;
+    strpos2: ptr<char> = ptradd strpos1 offset;
+    strpos3: ptr<char> = ptradd strpos2 offset;
+    strpos4: ptr<char> = ptradd strpos3 offset;
+    strpos5: ptr<char> = ptradd strpos4 offset;
+    strpos6: ptr<char> = ptradd strpos5 offset;
+
+    store string c0;
+    store strpos1 c1;
+    store strpos2 c2;
+    store strpos3 c3;
+    store strpos4 c4;
+    store strpos5 c5;
+    store strpos6 terminator;
+
+    ret string;
+}
+
+@world() : ptr<char> {
+    c0: char = const 'w';
+    c1: char = const 'o';
+    c2: char = const 'r';
+    c3: char = const 'l';
+    c4: char = const 'd';
+    terminator : char = const '\0'; 
+
+    tam: int = const 6;
+
+    offset: int = const 1;
+    string: ptr<char> = alloc tam;
+
+    strpos1: ptr<char> = ptradd string offset;
+    strpos2: ptr<char> = ptradd strpos1 offset;
+    strpos3: ptr<char> = ptradd strpos2 offset;
+    strpos4: ptr<char> = ptradd strpos3 offset;
+    strpos5: ptr<char> = ptradd strpos4 offset;
+
+    store string c0;
+    store strpos1 c1;
+    store strpos2 c2;
+    store strpos3 c3;
+    store strpos4 c4;
+    store strpos5 terminator;
+
+    ret string;
+}
+
+@str_length(str: ptr<char>): int {
+    terminator: char = const '\0';
+    one: int = const 1;
+    i: int = const 0;
+.loop:
+    strpos: ptr<char> = ptradd str i;
+    c: char = load strpos;
+    end: bool = ceq terminator c;
+    br end .exit .body;
+.body:
+    i: int = add i one;
+    jmp .loop;
+.exit:
+    ret i;
+}
+
+@str_concat(str1: ptr<char>, str2: ptr<char>): ptr<char> {
+    one: int = const 1;
+    terminator: char = const '\0';
+
+    tam_str1: int = call @str_length str1;
+    tam_str2: int = call @str_length str2;
+
+    tam: int = add tam_str1 tam_str2;
+    tam: int = add tam one;
+    str: ptr<char> = alloc tam;
+
+    i: int = const 0;
+    j: int = const 0;
+.loop1:
+    strpos: ptr<char> = ptradd str1 i;
+    c: char = load strpos;
+    end: bool = ceq terminator c;
+    br end .exit1 .body1;
+.body1:
+    strpos: ptr<char> = ptradd str j;
+    store strpos c;
+    i: int = add i one;
+    j: int = add j one;
+    jmp .loop1;
+.exit1:
+    i: int = const 0;
+.loop2:
+    strpos: ptr<char> = ptradd str2 i;
+    c: char = load strpos;
+    strpos: ptr<char> = ptradd str j;
+    store strpos c;
+    end: bool = ceq terminator c;
+    br end .exit .body2;
+.body2:
+    i: int = add i one;
+    j: int = add j one;
+    jmp .loop2;
+.exit:
+    ret str;
+}
+
+@str_print(str: ptr<char>) {
+    terminator: char = const '\0';
+    one: int = const 1;
+    i: int = const 0;
+.loop:
+    strpos: ptr<char> = ptradd str i;
+    c: char = load strpos;
+    end: bool = ceq terminator c;
+    br end .exit .body;
+.body:
+    print c;
+    i: int = add i one;
+    jmp .loop;
+.exit:
+}
+
+@empty() : ptr<char> {
+    terminator : char = const '\0'; 
+
+    tam: int = const 1;
+    string: ptr<char> = alloc tam;
+    store string terminator;
+
+    ret string;
+}
+
+@main(){
+    string: ptr<char> = call @string_example;
+    tam: int = call @str_length string;
+    print tam;
+
+    hello: ptr<char> = call @hello;
+    world: ptr<char> = call @world;
+    string2: ptr<char> = call @str_concat hello world;
+    call @str_print string2;
+
+    empty: ptr<char> = call @empty;
+    tam: int = call @str_length empty;
+    print tam;
+    concat: ptr<char> = call @str_concat empty empty;
+    call @str_print concat;
+
+    free empty;
+    free concat;
+    free hello;
+    free world;
+    free string2;
+    free string;
+}
