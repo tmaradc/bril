@@ -145,9 +145,11 @@ const argCounts: {[key in bril.OpCode]: number | null} = {
   cge: 2,
   char2int: 1,
   int2char: 1,
-  str2ptr: 1,
-  strchar: 2,
   strlen: 1,
+  strchar: 2,
+  strcat: 2,
+  str2ptr: 1,
+  ptr2str: 2,
 };
 
 type Pointer = {
@@ -780,16 +782,42 @@ function evalInstr(instr: bril.Instruction, state: State): Action {
     return NEXT;
   }
 
+  case "strlen": {
+    const string = getString(instr, state.env, 0);
+    let val = BigInt.asIntN(64, BigInt([...string].length));
+    state.env.set(instr.dest, val);
+    return NEXT;
+  }
+
+  case "strchar": {
+    const string = getString(instr, state.env, 0);
+    const i = getInt(instr, state.env, 1);
+    if (i < 0 || i>= [...string].length) {
+      throw error(`index ${i} points to uninitialized data`);
+    }
+    const c = [...string][Number(i)];
+    state.env.set(instr.dest, c);
+    return NEXT;
+  }
+
+  case "strcat": {
+    const string1 = getString(instr, state.env, 0);
+    const string2 = getString(instr, state.env, 1);
+    const cat = string1.concat(string2);
+    state.env.set(instr.dest, cat);
+    return NEXT;
+  }
+
   case "str2ptr": {
     const string = getString(instr, state.env, 0);
-    const amt = string.length;
+    const amt = [...string].length;
     const typ = instr.type;
     if (!(typeof typ === "object" && typ.hasOwnProperty('ptr') && typ.ptr == "char")) {
       throw error(`cannot convert string to a type different from the pointer of chars`);
     }
     const ptr = alloc(typ, Number(amt), state.heap);
-    for(let i = 0; i < amt; i++){
-      state.heap.write(ptr.loc, string.charAt(i));
+    for (const char of string) {
+      state.heap.write(ptr.loc, char);
       ptr.loc = ptr.loc.add(1);
     }
     ptr.loc = new Key(ptr.loc.base, 0);
@@ -797,21 +825,24 @@ function evalInstr(instr: bril.Instruction, state: State): Action {
     return NEXT;
   }
 
-  case "strchar": {
-    const string = getString(instr, state.env, 0);
-    const i = getInt(instr, state.env, 1);
-    const c = string.charAt(Number(i));
-    state.env.set(instr.dest, c);
+  case "ptr2str": {
+    let ptr = getPtr(instr, state.env, 0);
+    let amt = getInt(instr, state.env, 1);
+    let str = "";
+    for(let i = 0; i < amt; i++){
+      let val = state.heap.read(ptr.loc);
+      if (val === undefined || val === null) {
+        throw error(`Reached uninitialized data`);
+      }
+      str += val;
+      ptr.loc = ptr.loc.add(1);
+    }
+    ptr.loc = new Key(ptr.loc.base, 0);
+    state.env.set(instr.dest, str);
     return NEXT;
   }
 
-  case "strlen": {
-    const string = getString(instr, state.env, 0);
-    state.env.set(instr.dest, string.length);
-    return NEXT;
-  }
-
-
+  
   }
   unreachable(instr);
   throw error(`unhandled opcode ${(instr as any).op}`);

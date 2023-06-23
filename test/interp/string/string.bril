@@ -1,0 +1,15 @@
+@main() {
+  s: string = const "Alo Mundo";
+  end: string = const "!!!";
+  s2: string = strcat s end;
+  print s;
+
+
+  tam1: int = strlen s;
+  tam2: int = strlen end;
+  tam3: int = strlen s2;
+  print tam1 tam2 tam3;
+
+  c: char = strchar s2 tam1;
+  print c;
+}

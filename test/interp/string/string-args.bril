@@ -1,0 +1,4 @@
+# ARGS: "hello world" 
+@main(s: string) {
+  print s;
+}

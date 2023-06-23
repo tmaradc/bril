@@ -12,6 +12,7 @@
     - [Speculative Execution](lang/spec.md)
     - [Import](lang/import.md)
     - [Character](lang/char.md)
+    - [String](lang/string.md)
 - [Tools](tools/README.md)
     - [Interpreter](tools/interp.md)
     - [Text Representation](tools/text.md)

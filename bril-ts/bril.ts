@@ -60,7 +60,7 @@ export interface ValueOperation extends Op {
       "feq" | "flt" | "fle" | "fgt" | "fge" |
       "ceq" | "clt" | "cle" | "cgt" | "cge" | 
       "char2int" | "int2char" |
-      "str2ptr" | "strchar" | "strlen" |
+      "strlen" | "strchar" | "strcat" | "str2ptr" | "ptr2str" |
       "phi";
   dest: Ident;
   type: Type;

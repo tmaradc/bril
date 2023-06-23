@@ -1,9 +1,0 @@
-@main() {
-  s: string = const "Alo Mundo";
-  t: string = const "outro";
-  end: string = const "!!!";
-  print s end;
-  end: string = id s;
-  s: string = id t;
-  print s end;
-}

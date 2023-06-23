@@ -1,0 +1,9 @@
+@main() {
+  s: string = const "aeiou";
+  one: int = const 1;
+  vec: ptr<string> = alloc one;
+  store vec s;
+  v: string = load vec;
+  print v;
+  free vec;
+}
