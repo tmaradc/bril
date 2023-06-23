@@ -120,4 +120,11 @@ export const OP_SIGS: {[key: string]: Signature | PolySignature} = {
   'cge': {args: ['char', 'char'], dest: 'bool'},
   'char2int': {args: ['char'], dest: 'int'},
   'int2char': {args: ['int'], dest: 'char'},
+
+  // String.
+  'strlen': {args: ['string'], dest: 'int'},
+  'strchar': {args: ['string', 'int'], dest: 'char'},
+  'strcat': {args: ['string', 'string'], dest: 'string'},
+  'str2ptr': {args: ['string'], dest: {ptr: 'char'}},
+  'ptr2str': {args: [{ptr: 'char'}, 'int'], dest: 'string'},
 };
