@@ -1,5 +1,5 @@
 @main {
   s: string = const "abc";
-  negone: int = const 3;
-  c: char = strchar s negone;
+  three: int = const 3;
+  c: char = strchar s three;
 }
