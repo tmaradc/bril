@@ -260,6 +260,9 @@ def type_to_str(type):
 
 def value_to_str(type, value):
     if not isinstance(type, dict) and type.lower() == "char":
+        control_chars_reverse = {y: x for x, y in control_chars.items()}
+        if ord(value) in control_chars_reverse:
+            value = control_chars_reverse[ord(value)]
         return "'{}'".format(value)
     elif not isinstance(type, dict) and type.lower() == "string":
         return '"{}"'.format(value)
