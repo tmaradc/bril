@@ -1,0 +1,4 @@
+@main() {
+  s: string = const "abc";
+  dest: ptr<int> = str2ptr s;
+}

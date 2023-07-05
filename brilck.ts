@@ -9,7 +9,8 @@ const CONST_TYPES: {[key: string]: string} = {
   'int': 'number',
   'float': 'number',
   'bool': 'boolean',
-  'char': 'string'
+  'char': 'string',
+  'string': 'string'
 };
 
 type VarEnv = Map<bril.Ident, bril.Type>;

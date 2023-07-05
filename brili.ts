@@ -145,6 +145,11 @@ const argCounts: {[key in bril.OpCode]: number | null} = {
   cge: 2,
   char2int: 1,
   int2char: 1,
+  strlen: 1,
+  strchar: 2,
+  strcat: 2,
+  str2ptr: 1,
+  ptr2str: 2,
 };
 
 type Pointer = {
@@ -169,6 +174,8 @@ function typeCheck(val: Value, typ: bril.Type): boolean {
     return val.hasOwnProperty("loc");
   } else if (typ === "char") {
     return typeof val === "string";
+  }else if (typ === "string") {
+    return typeof val === "string";
   }
   throw error(`unknown type ${typ}`);
 }
@@ -177,7 +184,7 @@ function typeCheck(val: Value, typ: bril.Type): boolean {
  * Check whether the types are equal.
  */
 function typeCmp(lhs: bril.Type, rhs: bril.Type): boolean {
-  if (lhs === "int" || lhs == "bool" || lhs == "float" || lhs == "char") {
+  if (lhs === "int" || lhs == "bool" || lhs == "float" || lhs == "char" || lhs == "string") {
     return lhs == rhs;
   } else {
     if (typeof rhs === "object" && rhs.hasOwnProperty("ptr")) {
@@ -270,6 +277,10 @@ function getFloat(instr: bril.Operation, env: Env, index: number): number {
 
 function getChar(instr: bril.Operation, env: Env, index: number): string {
   return getArgument(instr, env, index, 'char') as string;
+}
+
+function getString(instr: bril.Operation, env: Env, index: number): string {
+  return getArgument(instr, env, index, 'string') as string;
 }
 
 function getLabel(instr: bril.Operation, index: number): bril.Ident {
@@ -431,7 +442,7 @@ function evalInstr(instr: bril.Instruction, state: State): Action {
   }
 
   switch (instr.op) {
-  case "const":
+  case "const": {
     // Interpret JSON numbers as either ints or floats.
     let value: Value;
     if (typeof instr.value === "number") {
@@ -440,7 +451,7 @@ function evalInstr(instr: bril.Instruction, state: State): Action {
       else
         value = BigInt(Math.floor(instr.value))
     } else if (typeof instr.value === "string") {
-      if([...instr.value].length !== 1) throw error(`char must have one character`);
+      if(instr.type === "char" && [...instr.value].length !== 1) throw error(`char must have one character`);
       value = instr.value;
     } else {
       value = instr.value;
@@ -448,6 +459,7 @@ function evalInstr(instr: bril.Instruction, state: State): Action {
 
     state.env.set(instr.dest, value);
     return NEXT;
+  } 
 
   case "id": {
     let val = getArgument(instr, state.env, 0);
@@ -770,6 +782,67 @@ function evalInstr(instr: bril.Instruction, state: State): Action {
     return NEXT;
   }
 
+  case "strlen": {
+    const string = getString(instr, state.env, 0);
+    let val = BigInt.asIntN(64, BigInt([...string].length));
+    state.env.set(instr.dest, val);
+    return NEXT;
+  }
+
+  case "strchar": {
+    const string = getString(instr, state.env, 0);
+    const i = getInt(instr, state.env, 1);
+    if (i < 0 || i>= [...string].length) {
+      throw error(`index ${i} points to uninitialized data`);
+    }
+    const c = [...string][Number(i)];
+    state.env.set(instr.dest, c);
+    return NEXT;
+  }
+
+  case "strcat": {
+    const string1 = getString(instr, state.env, 0);
+    const string2 = getString(instr, state.env, 1);
+    const cat = string1.concat(string2);
+    state.env.set(instr.dest, cat);
+    return NEXT;
+  }
+
+  case "str2ptr": {
+    const string = getString(instr, state.env, 0);
+    const amt = [...string].length;
+    const typ = instr.type;
+    if (!(typeof typ === "object" && typ.hasOwnProperty('ptr') && typ.ptr == "char")) {
+      throw error(`cannot convert string to a type different from the pointer of chars`);
+    }
+    const ptr = alloc(typ, Number(amt), state.heap);
+    for (const char of string) {
+      state.heap.write(ptr.loc, char);
+      ptr.loc = ptr.loc.add(1);
+    }
+    ptr.loc = new Key(ptr.loc.base, 0);
+    state.env.set(instr.dest, ptr);
+    return NEXT;
+  }
+
+  case "ptr2str": {
+    let ptr = getPtr(instr, state.env, 0);
+    let amt = getInt(instr, state.env, 1);
+    let str = "";
+    for(let i = 0; i < amt; i++){
+      let val = state.heap.read(ptr.loc);
+      if (val === undefined || val === null) {
+        throw error(`Reached uninitialized data`);
+      }
+      str += val;
+      ptr.loc = ptr.loc.add(1);
+    }
+    ptr.loc = new Key(ptr.loc.base, 0);
+    state.env.set(instr.dest, str);
+    return NEXT;
+  }
+
+  
   }
   unreachable(instr);
   throw error(`unhandled opcode ${(instr as any).op}`);
@@ -861,6 +934,10 @@ function parseChar(s: string): string {
   }
 }
 
+function parseString(s: string): string {
+  return s;
+}
+
 function parseBool(s: string): boolean {
   if (s === 'true') {
     return true;
@@ -905,6 +982,10 @@ function parseMainArguments(expected: bril.Argument[], args: string[]) : Env {
       case "char":
         let c: string = parseChar(args[i]);
         newEnv.set(expected[i].name, c as Value);
+        break;
+      case "string":
+        let s: string = parseString(args[i]);
+        newEnv.set(expected[i].name, s as Value);
         break;
     }
   }

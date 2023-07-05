@@ -1,0 +1,23 @@
+{
+  "functions": [
+    {
+      "instrs": [
+        {
+          "dest": "s",
+          "op": "const",
+          "type": "string",
+          "value": "hello world"
+        },
+        {
+          "args": [
+            "s"
+          ],
+          "dest": "i1",
+          "op": "strlen",
+          "type": "int"
+        }
+      ],
+      "name": "main"
+    }
+  ]
+}

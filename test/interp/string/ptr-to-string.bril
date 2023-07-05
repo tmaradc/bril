@@ -1,0 +1,42 @@
+@string_example() : ptr<char> {
+    c0: char = const 'a';
+    c1: char = const ' ';
+    c2: char = const 's';
+    c3: char = const 't';
+    c4: char = const 'r';
+    c5: char = const 'i';
+    c6: char = const 'n';
+    c7: char = const 'g';
+
+    tam: int = const 8;
+
+    offset: int = const 1;
+    string: ptr<char> = alloc tam;
+
+    strpos1: ptr<char> = ptradd string offset;
+    strpos2: ptr<char> = ptradd strpos1 offset;
+    strpos3: ptr<char> = ptradd strpos2 offset;
+    strpos4: ptr<char> = ptradd strpos3 offset;
+    strpos5: ptr<char> = ptradd strpos4 offset;
+    strpos6: ptr<char> = ptradd strpos5 offset;
+    strpos7: ptr<char> = ptradd strpos6 offset;
+
+    store string c0;
+    store strpos1 c1;
+    store strpos2 c2;
+    store strpos3 c3;
+    store strpos4 c4;
+    store strpos5 c5;
+    store strpos6 c6;
+    store strpos7 c7;
+
+    ret string;
+}
+
+@main() {
+  tam: int = const 8;
+  charvec: ptr<char> = call @string_example;
+  s : string = ptr2str charvec tam;
+  print s;
+  free charvec;
+}

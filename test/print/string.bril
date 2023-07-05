@@ -1,0 +1,4 @@
+@main {
+  s: string = const "hello world";
+  i1: int = strlen s;
+}

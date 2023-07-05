@@ -107,6 +107,13 @@ export class Builder {
   }
 
   /**
+   * Build a constant string value.
+   */
+  buildString(value: string, dest?: string) {
+    return this.buildConst(value, "string", dest);
+  }
+ 
+  /**
    * Add a label to the function at the current position.
    */
   buildLabel(name: string) {

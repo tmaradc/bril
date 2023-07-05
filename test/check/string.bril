@@ -1,0 +1,11 @@
+@main() {
+  s1: string = const "abc";
+  c: char = id s1;
+
+  vec: ptr<int> = str2ptr c;
+  s2: char = ptr2str vec;
+
+  s3: string = strcat s1 c;
+  f: float = strlen c;
+  i: int = strchar s1 f;
+}

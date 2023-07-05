@@ -1,0 +1,5 @@
+@main {
+  s: string = const "abc";
+  three: int = const 3;
+  c: char = strchar s three;
+}

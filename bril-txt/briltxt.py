@@ -36,11 +36,12 @@ op: IDENT (FUNC | LABEL | IDENT)*
 
 ?tyann: ":" type
 
-lit: SIGNED_INT  -> int
-  | BOOL         -> bool
-  | SIGNED_FLOAT -> float
-  | "nullptr"    -> nullptr
-  | CHAR         -> char
+lit: SIGNED_INT    -> int
+  | BOOL           -> bool
+  | SIGNED_FLOAT   -> float
+  | "nullptr"      -> nullptr
+  | CHAR           -> char
+  | ESCAPED_STRING -> string
 
 type: IDENT "<" type ">"  -> paramtype
     | IDENT               -> primtype
@@ -54,6 +55,7 @@ LABEL: "." IDENT
 COMMENT: /#.*/
 
 
+%import common.ESCAPED_STRING
 %import common.SIGNED_INT
 %import common.SIGNED_FLOAT
 %import common.WS
@@ -229,6 +231,10 @@ class JSONTransformer(lark.Transformer):
             return chr(control_chars[value])
         return value
 
+    def string(self, items):
+        value = str(items[0])[1:-1]  # Strip `"`.
+        return value
+
 
 def parse_bril(txt, include_pos=False):
     """Parse a Bril program and return a JSON string.
@@ -258,6 +264,8 @@ def value_to_str(type, value):
         if ord(value) in control_chars_reverse:
             value = control_chars_reverse[ord(value)]
         return "'{}'".format(value)
+    elif not isinstance(type, dict) and type.lower() == "string":
+        return '"{}"'.format(value)
     else:
         return str(value).lower()
 

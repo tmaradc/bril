@@ -10,7 +10,7 @@ export type Ident = string;
 /**
  * Primitive types.
  */
-export type PrimType = "int" | "bool" | "float" | "char";
+export type PrimType = "int" | "bool" | "float" | "char" | "string";
 
 /**
  * Parameterized types. (We only have pointers for now.)
@@ -60,6 +60,7 @@ export interface ValueOperation extends Op {
       "feq" | "flt" | "fle" | "fgt" | "fge" |
       "ceq" | "clt" | "cle" | "cgt" | "cge" | 
       "char2int" | "int2char" |
+      "strlen" | "strchar" | "strcat" | "str2ptr" | "ptr2str" |
       "phi";
   dest: Ident;
   type: Type;

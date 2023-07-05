@@ -1,0 +1,6 @@
+@main() {
+  s: string = const "olá";
+  charvec: ptr<char> = str2ptr s;
+  print s;
+  free charvec;
+}

@@ -1,0 +1,6 @@
+@main() {
+  one: int = const 1;
+  vec: ptr<char> = alloc one;
+  s: string = ptr2str vec one;
+  free vec;
+}

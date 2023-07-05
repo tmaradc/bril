@@ -1,0 +1,10 @@
+3:3: s1 has type string, but arg 0 for id should have type char
+5:3: result type of str2ptr should be ptr<char>, but found ptr<int>
+5:3: c has type char, but arg 0 for str2ptr should have type string
+6:3: result type of ptr2str should be string, but found char
+6:3: ptr2str expects 2 args, not 1
+8:3: c has type char, but arg 1 for strcat should have type string
+9:3: result type of strlen should be int, but found float
+9:3: c has type char, but arg 0 for strlen should have type string
+10:3: result type of strchar should be char, but found int
+10:3: f has type float, but arg 1 for strchar should have type int
