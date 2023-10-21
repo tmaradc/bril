@@ -1,0 +1,32 @@
+#não funciona, vetores em bril são tipados
+@str_length(str: ptr<char>): int {
+    c: char = load str;
+    l: int = char2int c;
+    ret l;
+}
+
+@oi() : ptr<char> {
+    c1: char = const 'o';
+    c2: char = const 'i';
+
+    tam: int = const 3;
+    tam_str: char = const '2';
+
+    pos: int = const 1;
+    charvec: ptr<char> = alloc tam;
+    charvec1: ptr<char> = ptradd charvec pos;
+    charvec2: ptr<char> = ptradd charvec1 pos;
+
+    store charvec tam_str;
+    store charvec1 c1;
+    store charvec2 c2;
+
+    ret charvec;
+}
+
+@main(){
+    string: ptr<char> = call @oi;
+    tam: int = call @str_length string;
+    free string;
+    print tam;
+}
